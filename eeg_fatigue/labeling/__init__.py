@@ -1,0 +1,1 @@
+# Fatigue labeling module
