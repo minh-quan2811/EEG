@@ -1,53 +1,53 @@
 import numpy as np
-from ..config import LEVEL_LABELS, LEVEL_COLORS
+from ..config import Z_THRESHOLDS, LEVEL_LABELS
+
+def _validate_config():
+    expected_levels = len(Z_THRESHOLDS) + 1
+    if len(LEVEL_LABELS) != expected_levels:
+        raise ValueError(
+            f"Config mismatch: {len(Z_THRESHOLDS)} Z_THRESHOLDS require "
+            f"{expected_levels} LEVEL_LABELS, but got {len(LEVEL_LABELS)}."
+        )
+    if Z_THRESHOLDS != sorted(Z_THRESHOLDS):
+        raise ValueError("Z_THRESHOLDS must be sorted in ascending order.")
 
 def classify_fatigue_level(z_score):
-    """Map Z-score to fatigue level (quartile-based, 4 levels)."""
     if np.isnan(z_score):
         return np.nan
-    if z_score < -0.674:
-        return 0
-    elif z_score < 0.0:
-        return 1
-    elif z_score < 0.674:
-        return 2
-    else:
-        return 3
+    for level, threshold in enumerate(Z_THRESHOLDS):
+        if z_score < threshold:
+            return level
+    return len(Z_THRESHOLDS)
 
 
 def build_baseline(results, subject):
-    """Extract all before-session window ratios and return (mean, std). Returns (None, None) if insufficient data."""
-    before_ratios_all = []
+    before_ratios = []
     for session_ratios in results[subject]["before"].values():
-        before_ratios_all.extend([r for r in session_ratios if not np.isnan(r)])
-
-    if len(before_ratios_all) < 2:
+        before_ratios.extend([r for r in session_ratios if not np.isnan(r)])
+    if len(before_ratios) < 2:
         return None, None
-
-    baseline_mean = np.mean(before_ratios_all)
-    baseline_std = np.std(before_ratios_all, ddof=1)
-
-    if baseline_std == 0:
+    mean = np.mean(before_ratios)
+    std = np.std(before_ratios, ddof=1)
+    if std == 0:
         return None, None
-
-    return baseline_mean, baseline_std
+    return mean, std
 
 
 def compute_all_labels(results, valid_subjects):
-    """Compute fatigue levels for all subjects, conditions, sessions. Returns dict."""
+    _validate_config()
+    n_levels = len(Z_THRESHOLDS) + 1
+    print(f"Fatigue classification: {n_levels} levels, "
+          f"thresholds = {Z_THRESHOLDS}")
     fatigue_levels = {}
-
     for subject in valid_subjects:
         fatigue_levels[subject] = {"before": {}, "after": {}}
-
         baseline_mean, baseline_std = build_baseline(results, subject)
         if baseline_mean is None:
-            print(f"[SKIP] {subject}: not enough before windows to build baseline.")
+            print(f"  [SKIP] {subject}: not enough before windows for baseline.")
             continue
-
-        print(f"\n{subject} → baseline from {sum(len(v) for v in results[subject]['before'].values())} windows: "
+        n_before = sum(len(v) for v in results[subject]["before"].values())
+        print(f"\n  {subject} -> baseline from {n_before} windows: "
               f"mean={baseline_mean:.4f}, std={baseline_std:.4f}")
-
         for condition in ["before", "after"]:
             for session, window_ratios in results[subject][condition].items():
                 window_levels = []
@@ -55,8 +55,8 @@ def compute_all_labels(results, valid_subjects):
                     z = (ratio - baseline_mean) / baseline_std
                     level = classify_fatigue_level(z)
                     window_levels.append(level)
-                    print(f"  [{condition}] Session {session} Window {w_idx+1}: "
-                          f"ratio={ratio:.4f}, Z={z:.2f} → {LEVEL_LABELS.get(level, 'NaN')}")
+                    label = LEVEL_LABELS.get(level, "NaN")
+                    print(f"    [{condition}] Session {session} Window {w_idx+1}: "
+                          f"ratio={ratio:.4f}, Z={z:.2f} -> {label}")
                 fatigue_levels[subject][condition][session] = window_levels
-
     return fatigue_levels
