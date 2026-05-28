@@ -109,7 +109,16 @@ def build_feature_dataframe(valid_subjects, fatigue_levels, config,
     return df
 
 
-def save_results_csv(df, filename="results/eeg_fatigue_results.csv"):
-    df.to_csv(filename, index=False)
-    print(f"Results saved to {filename}")
-    return filename
+def save_results_csv(df, filename: str = None, results_dir=None) -> str:
+    from pathlib import Path
+    if results_dir is None:
+        results_dir = Path("results")
+    else:
+        results_dir = Path(results_dir)
+    if filename is None:
+        filename = "eeg_fatigue_results.csv"
+    results_dir.mkdir(exist_ok=True)
+    filepath = results_dir / filename
+    df.to_csv(filepath, index=False)
+    print(f"Results saved to {filepath}")
+    return str(filepath)

@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 from ..config import LEVEL_LABELS, LEVEL_COLORS
 
 
-def plot_kruskal_wallis_boxplot(level_ratios):
+def plot_kruskal_wallis_boxplot(level_ratios: dict, results_dir: Path = Path("results")) -> plt.Figure:
     """Box plot of ratio per fatigue level with Kruskal-Wallis annotation."""
     all_levels  = sorted(level_ratios.keys())
     plot_data   = [level_ratios[lvl] for lvl in all_levels]
@@ -34,14 +35,17 @@ def plot_kruskal_wallis_boxplot(level_ratios):
                 f"n={len(level_ratios[lvl])}", ha="center", fontsize=9, color="gray")
 
     plt.tight_layout()
-    plt.savefig("results/method1_kruskal_boxplot.png", dpi=150, bbox_inches="tight")
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    plt.savefig(results_dir / "kruskal_boxplot.png", dpi=150, bbox_inches="tight")
     plt.show()
     return fig
 
 
-def plot_chi_square_distribution(contingency_table, chi2_result):
+def plot_chi_square_distribution(contingency_table: np.ndarray, chi2_result: tuple,
+                                 results_dir: Path = Path("results")) -> plt.Figure:
     """Stacked % bar and grouped count bar for Before vs After fatigue levels."""
-    chi2, p_chi, dof, cramers_v = chi2_result
+    chi2, p_chi, _, cramers_v = chi2_result
     strength = ("Large"    if cramers_v > 0.5 else
                 "Medium"   if cramers_v > 0.3 else
                 "Small"    if cramers_v > 0.1 else "Negligible")
@@ -104,6 +108,8 @@ def plot_chi_square_distribution(contingency_table, chi2_result):
              ha="center", fontsize=10, style="italic", color="#555555")
 
     plt.tight_layout()
-    plt.savefig("results/method3_chisquare_distribution.png", dpi=150, bbox_inches="tight")
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    plt.savefig(results_dir / "chisquare_distribution.png", dpi=150, bbox_inches="tight")
     plt.show()
     return fig

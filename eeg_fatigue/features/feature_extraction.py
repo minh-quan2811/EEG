@@ -1,14 +1,15 @@
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 
-from .. import config
-from ..features.band_power import compute_band_power_per_window
-from ..features.ratios import compute_ratio
+from . import band_power
+from . import ratios as ratios_module
 
 
-def load_and_compute_ratios(valid_subjects):
-    print("\n[2/8] Computing per-window ratios...")
+def extract_all_subjects(valid_subjects: list[str], config) -> dict:
+    """
+    Extract per-window band powers and TAB ratios for all subjects, conditions, and sessions.
+    Accepts config as explicit parameter (no module-level imports).
+    """
     results = {}
     for subject in valid_subjects:
         print(f"\n  Subject: {subject}")
@@ -20,7 +21,7 @@ def load_and_compute_ratios(valid_subjects):
                 filepath = os.path.join(sub_folder, f"{session}.set")
                 if not os.path.isfile(filepath):
                     continue
-                window_powers = compute_band_power_per_window(
+                window_powers = band_power.compute_band_power_per_window(
                     filepath,
                     config.BANDS,
                     window_sec=config.WINDOW_SEC,
@@ -28,7 +29,7 @@ def load_and_compute_ratios(valid_subjects):
                 )
                 if not window_powers:
                     continue
-                window_ratios = [compute_ratio(pw) for pw in window_powers]
+                window_ratios = [ratios_module.compute_ratio(pw) for pw in window_powers]
                 results[subject][condition][session] = window_ratios
                 found_sessions.append(session)
                 n_valid = sum(1 for r in window_ratios if not np.isnan(r))
@@ -37,3 +38,4 @@ def load_and_compute_ratios(valid_subjects):
             print(f"    [{condition}] Sessions loaded: {found_sessions}")
     print("\n[OK] Per-window ratios computed.")
     return results
+

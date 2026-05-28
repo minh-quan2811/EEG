@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 
-def plot_correlation_heatmap(df_features, top_features, target="fatigue_level"):
+
+def plot_correlation_heatmap(df_features, top_features: list[str], target: str = "fatigue_level",
+                             results_dir: Path = Path("results")) -> None:
     """Heatmap of top features vs fatigue level."""
     corr_matrix = df_features[top_features + [target]].corr()
 
@@ -19,11 +22,14 @@ def plot_correlation_heatmap(df_features, top_features, target="fatigue_level"):
     )
     plt.title("Correlation Heatmap - Top 15 Features vs Fatigue Level", fontsize=14, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("results/correlation_heatmap.png", dpi=150, bbox_inches="tight")
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    plt.savefig(results_dir / "correlation_heatmap.png", dpi=150, bbox_inches="tight")
     plt.show()
 
 
-def plot_top_6_features_boxplots(df_features, df_corr, target="fatigue_level"):
+def plot_top_6_features_boxplots(df_features, df_corr, target: str = "fatigue_level",
+                                 results_dir: Path = Path("results")) -> plt.Figure:
     """Box plots for top 6 features across fatigue levels."""
     top_6_features = df_corr.head(6)["feature"].tolist()
 
@@ -54,6 +60,9 @@ def plot_top_6_features_boxplots(df_features, df_corr, target="fatigue_level"):
 
     plt.suptitle("Top 6 Features vs Fatigue Level", fontsize=14, fontweight="bold")
     plt.tight_layout()
-    plt.savefig("results/top_6_features_boxplots.png", dpi=150, bbox_inches="tight")
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    plt.savefig(results_dir / "top_6_features_boxplots.png", dpi=150, bbox_inches="tight")
     plt.show()
     return fig
+

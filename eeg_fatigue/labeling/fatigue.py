@@ -1,26 +1,27 @@
 import numpy as np
-from ..config import Z_THRESHOLDS, LEVEL_LABELS
 
-def _validate_config():
-    expected_levels = len(Z_THRESHOLDS) + 1
-    if len(LEVEL_LABELS) != expected_levels:
+
+def _validate_config(config):
+    expected_levels = len(config.Z_THRESHOLDS) + 1
+    if len(config.LEVEL_LABELS) != expected_levels:
         raise ValueError(
-            f"Config mismatch: {len(Z_THRESHOLDS)} Z_THRESHOLDS require "
-            f"{expected_levels} LEVEL_LABELS, but got {len(LEVEL_LABELS)}."
+            f"Config mismatch: {len(config.Z_THRESHOLDS)} Z_THRESHOLDS require "
+            f"{expected_levels} LEVEL_LABELS, but got {len(config.LEVEL_LABELS)}."
         )
-    if Z_THRESHOLDS != sorted(Z_THRESHOLDS):
+    if config.Z_THRESHOLDS != sorted(config.Z_THRESHOLDS):
         raise ValueError("Z_THRESHOLDS must be sorted in ascending order.")
 
-def classify_fatigue_level(z_score):
+
+def classify_fatigue_level(z_score: float, config) -> float:
     if np.isnan(z_score):
         return np.nan
-    for level, threshold in enumerate(Z_THRESHOLDS):
+    for level, threshold in enumerate(config.Z_THRESHOLDS):
         if z_score < threshold:
             return level
-    return len(Z_THRESHOLDS)
+    return len(config.Z_THRESHOLDS)
 
 
-def build_baseline(results, subject):
+def build_baseline(results: dict, subject: str) -> tuple[float | None, float | None]:
     before_ratios = []
     for session_ratios in results[subject]["before"].values():
         before_ratios.extend([r for r in session_ratios if not np.isnan(r)])
@@ -33,11 +34,11 @@ def build_baseline(results, subject):
     return mean, std
 
 
-def compute_all_labels(results, valid_subjects):
-    _validate_config()
-    n_levels = len(Z_THRESHOLDS) + 1
+def compute_all_labels(results: dict, valid_subjects: list[str], config) -> dict:
+    _validate_config(config)
+    n_levels = len(config.Z_THRESHOLDS) + 1
     print(f"Fatigue classification: {n_levels} levels, "
-          f"thresholds = {Z_THRESHOLDS}")
+          f"thresholds = {config.Z_THRESHOLDS}")
     fatigue_levels = {}
     for subject in valid_subjects:
         fatigue_levels[subject] = {"before": {}, "after": {}}
@@ -53,9 +54,9 @@ def compute_all_labels(results, valid_subjects):
                 window_levels = []
                 for w_idx, ratio in enumerate(window_ratios):
                     z = (ratio - baseline_mean) / baseline_std
-                    level = classify_fatigue_level(z)
+                    level = classify_fatigue_level(z, config)
                     window_levels.append(level)
-                    label = LEVEL_LABELS.get(level, "NaN")
+                    label = config.LEVEL_LABELS.get(level, "NaN")
                     print(f"    [{condition}] Session {session} Window {w_idx+1}: "
                           f"ratio={ratio:.4f}, Z={z:.2f} -> {label}")
                 fatigue_levels[subject][condition][session] = window_levels

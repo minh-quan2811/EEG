@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from pathlib import Path
 from ..config import LEVEL_LABELS, LEVEL_COLORS
 
 
-def plot_ratio_analysis(results, fatigue_levels, valid_subjects):
+def plot_ratio_analysis(results: dict, fatigue_levels: dict, valid_subjects: list[str],
+                        results_dir: Path = Path("results")) -> plt.Figure:
     """4-panel figure: Before vs After, Session trend, Fatigue distribution, Z-scores."""
     all_levels = sorted(LEVEL_LABELS.keys())
 
@@ -107,6 +109,8 @@ def plot_ratio_analysis(results, fatigue_levels, valid_subjects):
     ax4.legend(fontsize=8, loc="upper left")
     ax4.grid(alpha=0.3)
 
-    plt.savefig("results/eeg_fatigue_analysis.png", dpi=150, bbox_inches="tight")
+    results_dir = Path(results_dir)
+    results_dir.mkdir(exist_ok=True)
+    plt.savefig(results_dir / "eeg_fatigue_analysis.png", dpi=150, bbox_inches="tight")
     plt.show()
     return fig

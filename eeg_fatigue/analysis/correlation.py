@@ -73,7 +73,7 @@ def anova_kruskal_wallis(df_features, feature_cols, target="fatigue_level"):
     return df_anova.sort_values("p_value")
 
 
-def run_pearson_analysis(df_features, feature_cols):
+def run_pearson_analysis(df_features: pd.DataFrame, feature_cols: list[str]) -> pd.DataFrame:
     print("\n" + "=" * 60)
     print("Pearson Correlation Analysis")
     print("=" * 60)
@@ -88,7 +88,7 @@ def run_pearson_analysis(df_features, feature_cols):
     return df_corr
 
 
-def run_spearman_analysis(df_features, feature_cols):
+def run_spearman_analysis(df_features: pd.DataFrame, feature_cols: list[str]) -> pd.DataFrame:
     print("\n" + "=" * 60)
     print("Spearman Correlation Analysis")
     print("=" * 60)
@@ -101,7 +101,7 @@ def run_spearman_analysis(df_features, feature_cols):
     return df_spearman
 
 
-def run_anova_analysis(df_features, feature_cols):
+def run_anova_analysis(df_features: pd.DataFrame, feature_cols: list[str]) -> pd.DataFrame:
     print("\n" + "=" * 60)
     print("ANOVA (Kruskal-Wallis) per Feature across Fatigue Levels")
     print("=" * 60)
@@ -116,10 +116,11 @@ def run_anova_analysis(df_features, feature_cols):
     return df_anova
 
 
-def generate_correlation_visualizations(df_features, df_corr):
+def generate_correlation_visualizations(df_features: pd.DataFrame, df_corr: pd.DataFrame, config=None) -> None:
     if not df_corr.empty:
         top_features = df_corr.head(15)["feature"].tolist()
         plot_correlation_heatmap(df_features, top_features)
         plot_top_6_features_boxplots(df_features, df_corr)
         plt.close("all")
         print("[OK] Correlation visualizations saved.")
+
