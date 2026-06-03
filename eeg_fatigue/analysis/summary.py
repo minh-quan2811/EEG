@@ -17,7 +17,7 @@ def print_statistical_summary(w_dict, level_ratios, h_stat, p_kw, chi2_result,
 def _print_wilcoxon_summary(w_dict):
     """Print Wilcoxon Signed-Rank test results."""
     print("\n-- Wilcoxon Signed-Rank (Before vs After) --")
-    if w_dict is not None:
+    if w_dict is not None and "p_value" in w_dict:
         sig = "[SIGNIFICANT] p<0.05" if w_dict["p_value"] < 0.05 else "[NOT SIGNIFICANT]"
         eff = effect_size_interpretation(w_dict["r_effect"])
         print(f"  N={w_dict['N']},  W={w_dict['stat']:.4f},  p={w_dict['p_value']:.4f}  {sig}")
