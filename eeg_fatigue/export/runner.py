@@ -1,21 +1,22 @@
 from pathlib import Path
-from .results import build_dataframe, build_feature_dataframe as _build_feature_df, save_results_csv
+from .dataframe import build_summary_df, build_feature_df
+from .csv_writer import save_results_csv
 from ..features.band_power import compute_band_power_per_window
 from ..features.ratios import compute_ratios
 
 
 def build_summary_dataframe(results, fatigue_levels, subjects, cfg):
-    df_summary = build_dataframe(results, fatigue_levels, subjects, cfg)
-    if df_summary.empty:
-        print("[WARN] Summary DataFrame is empty — check .set files loaded correctly.")
+    df = build_summary_df(results, fatigue_levels, subjects, cfg)
+    if df is None or df.empty:
+        print("[WARN] Summary DataFrame is empty.")
         return None
-    print(f"  Total rows (windows): {len(df_summary)}")
-    print(df_summary.head(10).to_string(index=False))
-    return df_summary
+    print(f"  Total rows (windows): {len(df)}")
+    print(df.head(10).to_string(index=False))
+    return df
 
 
 def build_feature_dataframe(subjects, fatigue_levels, cfg):
-    return _build_feature_df(
+    return build_feature_df(
         valid_subjects=subjects,
         fatigue_levels=fatigue_levels,
         config=cfg,
@@ -24,5 +25,5 @@ def build_feature_dataframe(subjects, fatigue_levels, cfg):
     )
 
 
-def export_results(df_features, results_dir):
-    save_results_csv(df_features, results_dir=results_dir)
+def export_all(df, results_dir: Path):
+    save_results_csv(df, results_dir=results_dir)

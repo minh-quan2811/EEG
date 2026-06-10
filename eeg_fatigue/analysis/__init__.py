@@ -1,2 +1,1 @@
-# Statistical analysis module
-from . import statistic_runner, correlation_runner
+from . import runner, statistics, correlation, summary

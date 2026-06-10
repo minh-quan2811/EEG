@@ -1,22 +1,25 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+
 from .ratio_plots import plot_ratio_analysis
 from .stats_plots import plot_kruskal_wallis_boxplot, plot_chi_square_distribution
+from .correlation_plots import plot_correlation_heatmap, plot_top_6_features_boxplots
 
 
-def visualize_ratio_analysis(results: dict, fatigue_levels: dict,
-                            subjects: list[str], results_dir: Path) -> None:
-    """Generate before/after ratio analysis visualization."""
+def visualize_all(results, fatigue_levels, subjects, analysis_results: dict, results_dir: Path):
     plot_ratio_analysis(results, fatigue_levels, subjects, results_dir)
     plt.close("all")
-    print("[OK] Ratio analysis visualization saved.")
 
-
-def visualize_statistics(level_ratios: dict, contingency_table: np.ndarray,
-                        chi2_result: tuple, results_dir: Path) -> None:
-    """Generate statistical visualizations (boxplots, chi-square plots)."""
-    plot_kruskal_wallis_boxplot(level_ratios, results_dir)
-    plot_chi_square_distribution(contingency_table, chi2_result, results_dir)
+    plot_kruskal_wallis_boxplot(analysis_results["level_ratios"], results_dir)
+    plot_chi_square_distribution(analysis_results["contingency_table"], analysis_results["chi2_result"], results_dir)
     plt.close("all")
-    print("[OK] Main visualizations saved.")
+
+    df_corr = analysis_results.get("df_corr")
+    df_features = analysis_results.get("df_features")
+    if df_corr is not None and not df_corr.empty and df_features is not None:
+        top_features = df_corr.head(15)["feature"].tolist()
+        plot_correlation_heatmap(df_features, top_features, results_dir=results_dir)
+        plot_top_6_features_boxplots(df_features, df_corr, results_dir=results_dir)
+        plt.close("all")
+
+    print("[OK] All visualizations saved.")
