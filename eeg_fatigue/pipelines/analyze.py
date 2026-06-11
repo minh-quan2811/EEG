@@ -33,7 +33,12 @@ def run_analyze(cfg, results_dir: Path):
     corr_results = analysis.runner.run_correlation(df_features)
     analysis_results.update(corr_results)
 
+    analysis_results["df_features"] = df_features
+
     print("\n[7/7] Visualizing + exporting + reporting...")
     visualization.runner.visualize_all(results, fatigue_levels, subjects, analysis_results, results_dir)
-    export.runner.export_all(df_features if df_features is not None and not df_features.empty else df_summary, results_dir)
+    export.runner.export_all(
+        df_features if df_features is not None and not df_features.empty else df_summary,
+        results_dir,
+    )
     reporting.save_all(cfg, analysis_results, results_dir)

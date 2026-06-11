@@ -28,11 +28,15 @@ def run_train(cfg, train_cfg, results_dir: Path):
         return
 
     print("\n[5/6] Statistical validation gate...")
-    passed = training.validate(df, train_cfg, results_dir)
+    passed, stat_lines = training.validate(df, train_cfg, results_dir)
     if not passed:
         return
 
     print("\n[6/6] Training...")
     train_results = training.run_training(df, cfg, train_cfg, results_dir)
+    if not train_results:
+        return
+
+    train_results["stat_validation"] = stat_lines
 
     reporting.save_all(cfg, train_results, results_dir, train_cfg=train_cfg)

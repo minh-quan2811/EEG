@@ -3,6 +3,9 @@ import sys
 import warnings
 from pathlib import Path
 
+from .pipelines.analyze import run_analyze
+from .pipelines.train import run_train
+
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
@@ -51,18 +54,11 @@ def main():
     _apply_overrides(cfg, args)
 
     from .reporting.results_dir import get_next_results_dir
-    from .utils.logging import setup_logging
 
     if args.command == "analyze":
         results_dir = args.results_dir or get_next_results_dir("analyze", cfg.AGG_MODE)
         results_dir.mkdir(parents=True, exist_ok=True)
-        logger, original_stdout = setup_logging(str(results_dir / "analysis_output.txt"))
-        try:
-            sys.stdout = logger
-            from .pipelines.analyze import run_analyze
-            run_analyze(cfg, results_dir)
-        finally:
-            sys.stdout = original_stdout
+        run_analyze(cfg, results_dir)
 
     elif args.command == "train":
         from .training import config as train_cfg
@@ -82,13 +78,7 @@ def main():
 
         results_dir = args.results_dir or get_next_results_dir(args.model, cfg.AGG_MODE)
         results_dir.mkdir(parents=True, exist_ok=True)
-        logger, original_stdout = setup_logging(str(results_dir / "training_output.txt"))
-        try:
-            sys.stdout = logger
-            from .pipelines.train import run_train
-            run_train(cfg, train_cfg, results_dir)
-        finally:
-            sys.stdout = original_stdout
+        run_train(cfg, train_cfg, results_dir)
 
 
 if __name__ == "__main__":
