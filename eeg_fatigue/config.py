@@ -26,30 +26,28 @@ BANDS = {
 Z_THRESHOLDS = [1, 2]
 
 # Feature aggregation mode
-AGG_MODE: str = "global"    # "global" | "channel" | "region"
- 
+AGG_MODE: str = "channel"    # "global" | "channel" | "region"
+
+# 10-20 system
 CHANNEL_REGIONS: dict[str, list[str]] = {
     "Frontal": [
-        "Fp1", "Fp2", "AF3", "AF4", "AF7", "AF8",
-        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "Fz",
+        "Fp1", "Fp2",
+        "F7", "F3", "Fz", "F4", "F8",
     ],
     "Central": [
-        "FC1", "FC2", "FC3", "FC4", "FC5", "FC6", "FCz",
-        "C1", "C2", "C3", "C4", "C5", "C6", "Cz",
+        "C3", "Cz", "C4",
     ],
     "Parietal": [
-        "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CPz",
-        "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "Pz",
+        "P3", "Pz", "P4",
     ],
     "Temporal": [
-        "T7", "T8", "TP7", "TP8", "TP9", "TP10",
-        "FT7", "FT8", "FT9", "FT10",
+        "T3", "T4", "T5", "T6",
     ],
     "Occipital": [
-        "O1", "O2", "Oz",
-        "PO3", "PO4", "PO7", "PO8", "POz",
+        "O1", "O2",
     ],
 }
+
 
 @dataclass(frozen=True)
 class LevelDefinition:
@@ -58,9 +56,10 @@ class LevelDefinition:
 
 # Count must match len(Z_THRESHOLDS) + 1.
 LEVEL_DEFINITIONS: dict[int, LevelDefinition] = {
-    0: LevelDefinition("No Fatigue",   "#2ecc71"),
+    0: LevelDefinition("Low Fatigue",   "#2ecc71"),
     1: LevelDefinition("Low Fatigue",  "#f1c40f"),
-    2: LevelDefinition("Mild Fatigue", "#e67e22"),
+    2: LevelDefinition("Severe Fatigue", "#e67e22"),
+    # 3: LevelDefinition("High Fatigue", "#e74c3c"),
 }
 
 LEVEL_LABELS = {k: v.label for k, v in LEVEL_DEFINITIONS.items()}

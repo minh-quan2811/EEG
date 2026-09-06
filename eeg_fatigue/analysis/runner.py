@@ -21,8 +21,16 @@ def run_correlation(df_features) -> dict:
     if df_features is None or df_features.empty:
         return {"df_corr": None, "df_spearman": None}
 
-    exclude = {"subject", "condition", "session", "window", "fatigue_level", "fatigue_label", "z_score", "ratio"}
-    feature_cols = [c for c in df_features.columns if c not in exclude]
+    exclude = {
+        "subject", "condition", "session", "window", "fatigue_level", "fatigue_label",
+        "z_score", "ratio", "theta_alpha_beta"
+    }
+    feature_cols = [
+        c for c in df_features.columns
+        if c not in exclude
+        and "mtsrevent" not in c.lower()
+        and not c.lower().endswith("_other")
+    ]
 
     df_corr = run_pearson_analysis(df_features, feature_cols)
     df_spearman = run_spearman_analysis(df_features, feature_cols)

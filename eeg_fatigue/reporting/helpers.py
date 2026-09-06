@@ -95,7 +95,16 @@ def chi2_lines(chi2_result, contingency_table):
 def correlation_lines(df_corr, df_spearman):
     lines = []
     if df_corr is not None and not df_corr.empty:
+        selected = df_corr[df_corr["pearson_r"].abs() > 0.4]
         lines += ["", "-- Pearson Correlation Top 10 --"]
+        if not selected.empty:
+            lines.append(f"Selected features (|r| > 0.4): {len(selected)}")
+            for _, row in selected.iterrows():
+                sign = "+" if row["pearson_r"] >= 0 else "-"
+                lines.append(f"  {row['feature']} (r={sign}{abs(row['pearson_r']):.4f})")
+        else:
+            lines.append("Selected features (|r| > 0.4): 0")
+        lines.append("")
         lines.append(df_corr.head(10).to_string(index=False))
     if df_spearman is not None and not df_spearman.empty:
         lines += ["", "-- Spearman Correlation Top 10 --"]

@@ -26,8 +26,13 @@ def _select_features(df, min_corr) -> tuple[list[str] | None, object, list[str]]
     """
     import pandas as pd
 
-    exclude = {"subject", "condition", "session", "window", "fatigue_level"}
-    feature_cols = [c for c in df.columns if c not in exclude]
+    exclude = {
+        "subject", "condition", "session", "window", "fatigue_level", "theta_alpha_beta"
+    }
+    feature_cols = [
+        c for c in df.columns
+        if c not in exclude
+    ]
 
     correlations = []
     for col in feature_cols:

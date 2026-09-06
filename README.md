@@ -32,6 +32,8 @@ It then runs statistical tests to confirm whether fatigue genuinely increased af
 
 ## Usage
 
+Modify the config.py first
+
 ```bash
 pip install -r requirements.txt
 ```
