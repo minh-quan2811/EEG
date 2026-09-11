@@ -1,5 +1,6 @@
 import numpy as np
 from ..analysis.statistics import effect_size_interpretation
+from .. import config as app_config
 
 
 def config_lines(cfg, train_cfg=None):
@@ -29,6 +30,7 @@ def config_lines(cfg, train_cfg=None):
     lines += [
         "",
         f"AGG_MODE     : {cfg.AGG_MODE}",
+        f"CORR_THRESH  : {cfg.CORRELATION_THRESHOLD}",
         f"Z_THRESHOLDS : {cfg.Z_THRESHOLDS}",
         f"LEVEL_LABELS : {cfg.LEVEL_LABELS}",
         "",
@@ -92,18 +94,23 @@ def chi2_lines(chi2_result, contingency_table):
     return lines
 
 
-def correlation_lines(df_corr, df_spearman):
+def correlation_lines(df_corr, df_spearman, correlation_threshold=None):
+    if correlation_threshold is None:
+        correlation_threshold = app_config.CORRELATION_THRESHOLD
+
     lines = []
     if df_corr is not None and not df_corr.empty:
-        selected = df_corr[df_corr["pearson_r"].abs() > 0.4]
+        selected = df_corr[df_corr["pearson_r"].abs() > correlation_threshold]
         lines += ["", "-- Pearson Correlation Top 10 --"]
         if not selected.empty:
-            lines.append(f"Selected features (|r| > 0.4): {len(selected)}")
+            lines.append(
+                f"Selected features (|r| > {correlation_threshold}): {len(selected)}"
+            )
             for _, row in selected.iterrows():
                 sign = "+" if row["pearson_r"] >= 0 else "-"
                 lines.append(f"  {row['feature']} (r={sign}{abs(row['pearson_r']):.4f})")
         else:
-            lines.append("Selected features (|r| > 0.4): 0")
+            lines.append(f"Selected features (|r| > {correlation_threshold}): 0")
         lines.append("")
         lines.append(df_corr.head(10).to_string(index=False))
     if df_spearman is not None and not df_spearman.empty:

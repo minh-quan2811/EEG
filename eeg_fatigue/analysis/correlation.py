@@ -1,9 +1,15 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+from .. import config as app_config
 
 
-def pearson_correlation(df_features, feature_cols, target="fatigue_level"):
+def pearson_correlation(
+    df_features, feature_cols, target="fatigue_level", correlation_threshold=None
+):
+    if correlation_threshold is None:
+        correlation_threshold = app_config.CORRELATION_THRESHOLD
+
     correlations = []
     for feature in feature_cols:
         try:
@@ -18,7 +24,7 @@ def pearson_correlation(df_features, feature_cols, target="fatigue_level"):
                 "pearson_r": r,
                 "p_value": p_value,
                 "significant": "Yes" if p_value < 0.05 else "No",
-                "strength": "Strong" if abs(r) > 0.7 else "Moderate" if abs(r) > 0.4 else "Weak"
+                "strength": "Strong" if abs(r) > 0.7 else "Moderate" if abs(r) > correlation_threshold else "Weak"
             })
         except (ValueError, TypeError):
             continue
@@ -70,11 +76,13 @@ def anova_kruskal_wallis(df_features, feature_cols, target="fatigue_level"):
     return df_anova.sort_values("p_value")
 
 
-def run_pearson_analysis(df_features, feature_cols):
+def run_pearson_analysis(df_features, feature_cols, correlation_threshold=None):
     print("\n" + "=" * 60)
     print("Pearson Correlation Analysis")
     print("=" * 60)
-    df_corr = pearson_correlation(df_features, feature_cols)
+    df_corr = pearson_correlation(
+        df_features, feature_cols, correlation_threshold=correlation_threshold
+    )
     if not df_corr.empty:
         print("\n  Top 10 features most correlated with fatigue level:")
         print(df_corr.head(10).to_string(index=False))

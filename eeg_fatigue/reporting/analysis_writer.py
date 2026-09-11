@@ -24,6 +24,7 @@ def save_analysis_summary(analysis_results: dict, results_dir: Path, cfg):
     lines += correlation_lines(
         analysis_results.get("df_corr"),
         analysis_results.get("df_spearman"),
+        cfg.CORRELATION_THRESHOLD,
     )
 
     summary = "\n".join(lines)

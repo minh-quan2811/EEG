@@ -4,7 +4,7 @@ MODEL_CONFIG = {
     "input_size":    None,
     "num_classes":   3,     # updated from cfg.LEVEL_LABELS at runtime
     "hidden_dim":    64,
-    "num_blocks":    3,     # resnet only
+    "num_blocks":    16,     # resnet only
     "dropout":       0.3,
     "learning_rate": 1e-3,
     "batch_size":    64,
@@ -13,5 +13,5 @@ MODEL_CONFIG = {
 }
 
 N_FOLDS = 5
-MIN_CORRELATION = 0.5
+MIN_CORRELATION = 0.4           # The minimum of the correlation value must achieve (the max of the correlation)
 SIGNIFICANCE_ALPHA = 0.05

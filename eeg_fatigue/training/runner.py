@@ -20,7 +20,7 @@ def validate(df, train_cfg, results_dir: Path) -> tuple[bool, list[str]]:
     return run_statistical_validation(df, train_cfg, results_dir)
 
 
-def _select_features(df, min_corr) -> tuple[list[str] | None, object, list[str]]:
+def _select_features(df, min_corr, correlation_threshold) -> tuple[list[str] | None, object, list[str]]:
     """
     selected_features, df_corr, correlation_report_lines.
     """
@@ -57,14 +57,16 @@ def _select_features(df, min_corr) -> tuple[list[str] | None, object, list[str]]
         corr_lines.append(msg)
         return None, df_corr, corr_lines
 
-    selected_df = df_corr[df_corr["abs_r"] > 0.4]
+    selected_df = df_corr[df_corr["abs_r"] > correlation_threshold]
     if selected_df.empty:
         selected_df = df_corr.head(5)
         warn = f"[WARN] No Moderate/Strong features — falling back to top {len(selected_df)}."
         print(f"\n{warn}")
         corr_lines.append(warn)
     else:
-        corr_lines.append(f"Selected {len(selected_df)} features (|r| > 0.4):")
+        corr_lines.append(
+            f"Selected {len(selected_df)} features (|r| > {correlation_threshold}):"
+        )
         print(f"\n[OK] Selected {len(selected_df)} features:")
 
     for _, row in selected_df.iterrows():
@@ -80,7 +82,9 @@ def run_training(df, cfg, train_cfg, results_dir: Path) -> dict:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"  Device: {device}  |  Model: {train_cfg.MODEL_CHOICE}")
 
-    selected_features, _, corr_lines = _select_features(df, train_cfg.MIN_CORRELATION)
+    selected_features, _, corr_lines = _select_features(
+        df, train_cfg.MIN_CORRELATION, cfg.CORRELATION_THRESHOLD
+    )
     if selected_features is None:
         return {}
 

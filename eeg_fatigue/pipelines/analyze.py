@@ -30,7 +30,7 @@ def run_analyze(cfg, results_dir: Path):
 
     print("\n[6/7] Building feature DataFrame + correlation...")
     df_features = export.runner.build_feature_dataframe(subjects, fatigue_levels, cfg)
-    corr_results = analysis.runner.run_correlation(df_features)
+    corr_results = analysis.runner.run_correlation(df_features, cfg)
     analysis_results.update(corr_results)
 
     analysis_results["df_features"] = df_features

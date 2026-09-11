@@ -10,8 +10,8 @@ SUBJECTS = ["sub-01", "sub-02", "sub-03", "sub-06", "sub-07", "sub-09", "sub-10"
 # SUBJECTS = ["sub-01", "sub-02"]
 
 NUM_SESSIONS = 10
-WINDOW_SEC = 4.0
-OVERLAP = 0.5
+WINDOW_SEC = 2.0
+OVERLAP = 0.6
 
 BANDS = {
     "delta": (0.5, 4),
@@ -23,10 +23,11 @@ BANDS = {
 
 # Z-score cut-offs: [1, 2] → 3 levels (Z<1, 1<=Z<2, Z>=2)
 # Add a value to get more levels — e.g. [1, 2, 3] → 4 levels
-Z_THRESHOLDS = [1, 2]
+Z_THRESHOLDS = [0.5, 2.5]
 
 # Feature aggregation mode
 AGG_MODE: str = "channel"    # "global" | "channel" | "region"
+CORRELATION_THRESHOLD = 0.3
 
 # 10-20 system
 CHANNEL_REGIONS: dict[str, list[str]] = {
@@ -57,7 +58,7 @@ class LevelDefinition:
 # Count must match len(Z_THRESHOLDS) + 1.
 LEVEL_DEFINITIONS: dict[int, LevelDefinition] = {
     0: LevelDefinition("Low Fatigue",   "#2ecc71"),
-    1: LevelDefinition("Low Fatigue",  "#f1c40f"),
+    1: LevelDefinition("Mild Fatigue",  "#f1c40f"),
     2: LevelDefinition("Severe Fatigue", "#e67e22"),
     # 3: LevelDefinition("High Fatigue", "#e74c3c"),
 }

@@ -17,7 +17,7 @@ def run_analysis(results, fatigue_levels, subjects, cfg) -> dict:
     }
 
 
-def run_correlation(df_features) -> dict:
+def run_correlation(df_features, cfg) -> dict:
     if df_features is None or df_features.empty:
         return {"df_corr": None, "df_spearman": None}
 
@@ -32,7 +32,9 @@ def run_correlation(df_features) -> dict:
         and not c.lower().endswith("_other")
     ]
 
-    df_corr = run_pearson_analysis(df_features, feature_cols)
+    df_corr = run_pearson_analysis(
+        df_features, feature_cols, cfg.CORRELATION_THRESHOLD
+    )
     df_spearman = run_spearman_analysis(df_features, feature_cols)
     run_anova_analysis(df_features, feature_cols)
 
