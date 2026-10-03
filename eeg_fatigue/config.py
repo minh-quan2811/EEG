@@ -6,7 +6,7 @@ BASE_PATH = r"C:\Users\Admin\Desktop\School_Projects\git repositories\EEG\data\c
 AFTER_PATH = os.path.join(BASE_PATH, "after")
 BEFORE_PATH = os.path.join(BASE_PATH, "before")
 
-SUBJECTS = ["sub-01", "sub-02", "sub-03", "sub-06", "sub-07", "sub-09", "sub-10", "sub-11", "sub-12", "sub-13"]
+SUBJECTS = ["sub-01", "sub-02", "sub-03", "sub-04", "sub-05", "sub-06", "sub-07", "sub-08", "sub-09", "sub-10", "sub-11", "sub-12", "sub-13"]
 # SUBJECTS = ["sub-01", "sub-02"]
 
 NUM_SESSIONS = 10

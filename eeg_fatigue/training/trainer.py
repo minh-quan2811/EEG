@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .dataset import FatigueDataset
 from .models import ResNetFatigue, MLPFatigue, build_svm_model, build_rf_model
+from .scheduler import build_scheduler
 
 
 def _make_resnet(model_config):
@@ -72,7 +73,13 @@ def run_torch_fold(build_fn, X_tv, y_tv, train_idx, val_idx, fold, model_config,
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=model_config["learning_rate"],
                            weight_decay=model_config["weight_decay"])
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
+
+    schedule_cfg = model_config.get("lr_schedule", {"type": "plateau", "params": {}})
+    scheduler, scheduler_needs_metric = build_scheduler(
+        optimizer,
+        schedule_cfg.get("type", "plateau"),
+        schedule_cfg.get("params"),
+    )
 
     history = {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []}
     best_val_loss = float("inf")
@@ -105,7 +112,12 @@ def run_torch_fold(build_fn, X_tv, y_tv, train_idx, val_idx, fold, model_config,
 
         t_loss /= t_total; t_acc = t_correct / t_total
         v_loss /= v_total; v_acc = v_correct / v_total
-        scheduler.step(v_loss)
+
+        if scheduler is not None:
+            if scheduler_needs_metric:
+                scheduler.step(v_loss)
+            else:
+                scheduler.step()
 
         history["train_loss"].append(t_loss)
         history["val_loss"].append(v_loss)

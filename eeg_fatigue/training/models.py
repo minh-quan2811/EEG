@@ -60,7 +60,7 @@ class MLPFatigue(nn.Module):
 
 
 def build_svm_model():
-    return SVC(kernel="rbf", C=10, gamma="scale", class_weight="balanced",
+    return SVC(kernel="rbf", C=50, gamma="scale", class_weight={0:1,1:3,2:7},
                probability=True, random_state=42)
 
 

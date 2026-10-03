@@ -4,12 +4,16 @@ MODEL_CONFIG = {
     "input_size":    None,
     "num_classes":   3,     # updated from cfg.LEVEL_LABELS at runtime
     "hidden_dim":    64,
-    "num_blocks":    16,     # resnet only
+    "num_blocks":    8,     # resnet only
     "dropout":       0.3,
     "learning_rate": 1e-3,
     "batch_size":    64,
     "epochs":        50,
     "weight_decay":  1e-4,
+    "lr_schedule": {           # "plateau" | "cosine" | "step" | "none"
+        "type":   "cosine",
+        "params": {},
+    },
 }
 
 N_FOLDS = 5

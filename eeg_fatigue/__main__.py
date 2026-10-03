@@ -30,6 +30,7 @@ def _build_parser():
     train_p.add_argument("--batch-size", type=int, default=None)
     train_p.add_argument("--hidden-dim", type=int, default=None)
     train_p.add_argument("--lr", type=float, default=None)
+    train_p.add_argument("--lr-schedule", choices=["plateau", "cosine", "step", "none"], default=None)
     train_p.add_argument("--min-corr", type=float, default=None)
 
     return parser
@@ -73,6 +74,8 @@ def main():
             train_cfg.MODEL_CONFIG["hidden_dim"] = args.hidden_dim
         if args.lr:
             train_cfg.MODEL_CONFIG["learning_rate"] = args.lr
+        if args.lr_schedule:
+            train_cfg.MODEL_CONFIG["lr_schedule"]["type"] = args.lr_schedule
         if args.min_corr:
             train_cfg.MIN_CORRELATION = args.min_corr
 
